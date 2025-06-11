@@ -5,17 +5,15 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Fix default icon issue in Leaflet
+// Fix Leaflet marker icon URLs
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
+// ✅ Use backend URL from .env
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 function App() {
@@ -42,7 +40,8 @@ function App() {
         });
         toast.success('✅ Location captured!');
       },
-      () => {
+      (error) => {
+        console.error('Location error:', error);
         toast.error('❌ Unable to fetch location');
       }
     );
@@ -120,7 +119,7 @@ function App() {
             value={formData.name}
             onChange={handleChange}
             placeholder="👤 Your Name"
-            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner backdrop-blur-md placeholder-gray-700 text-gray-900"
+            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner placeholder-gray-700 text-gray-900"
           />
 
           <input
@@ -129,7 +128,7 @@ function App() {
             value={formData.phone}
             onChange={handleChange}
             placeholder="📞 Phone Number"
-            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner backdrop-blur-md placeholder-gray-700 text-gray-900"
+            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner placeholder-gray-700 text-gray-900"
           />
 
           <input
@@ -138,14 +137,14 @@ function App() {
             value={formData.vehicle}
             onChange={handleChange}
             placeholder="🚗 Vehicle Name/Model"
-            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner backdrop-blur-md placeholder-gray-700 text-gray-900"
+            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner placeholder-gray-700 text-gray-900"
           />
 
           <select
             name="issue"
             value={formData.issue}
             onChange={handleChange}
-            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner backdrop-blur-md text-gray-900"
+            className="w-full p-3 bg-white/40 border border-white/30 rounded-xl shadow-inner text-gray-900"
           >
             <option value="">🔧 Select Issue</option>
             <option value="won't start">Won't Start</option>
