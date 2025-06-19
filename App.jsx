@@ -13,8 +13,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-if (!BACKEND_URL) console.error("VITE_BACKEND_URL is not defined in .env");
+const BACKEND_URL = 'https://car-end-rn4g.onrender.com';
 
 function App() {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
@@ -22,22 +21,13 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser.');
-      return;
-    }
-
+    if (!navigator.geolocation) return toast.error('Geolocation not supported.');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = pos.coords;
-        setLocation({ latitude: coords.latitude, longitude: coords.longitude });
+        setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
         toast.success('✅ Location captured!');
       },
-      (err) => {
-        console.error('Geolocation error:', err);
-        toast.error(`❌ Unable to fetch location: ${err.message}`);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      (error) => toast.error(`❌ Unable to fetch location: ${error.message}`)
     );
   };
 
@@ -49,36 +39,35 @@ function App() {
   const handleSubmit = async () => {
     const { name, phone, vehicle, issue } = formData;
 
-    if (!/^[0-9]{10}$/.test(phone)) return toast.error('📱 Enter a valid 10-digit phone number');
-    if (!name.trim()) return toast.error('👤 Name is required');
-    if (!vehicle.trim()) return toast.error('🚗 Vehicle model is required');
-    if (!issue) return toast.error('🔧 Please select an issue');
-    if (!location.latitude || !location.longitude) return toast.error('📍 Location not captured');
-
-    const payload = { ...formData, ...location };
-    console.log('🚀 Sending payload:', payload);
-    toast(`📦 Sending data: ${JSON.stringify(payload)}`);
+    if (!/^[0-9]{10}$/.test(phone)) return toast.error('📱 Enter valid 10-digit phone');
+    if (name.trim().length < 2) return toast.error('👤 Enter valid name');
+    if (vehicle.trim().length < 2) return toast.error('🚗 Enter valid vehicle');
+    if (!issue || !location.latitude || !location.longitude) return toast.error('⚠️ Fill all fields and location');
 
     setLoading(true);
     try {
+      const payload = { ...formData, ...location };
+      console.log('🚀 Sending payload:', payload);
+
       const res = await fetch(`${BACKEND_URL}/api/emergency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
+      const text = await res.text();
+      console.log('📨 Server response:', text);
+
       if (res.ok) {
-        toast.success('✅ Emergency request sent successfully!');
+        toast.success('🚨 Request sent!');
         setFormData({ name: '', phone: '', issue: '', vehicle: '' });
         setLocation({ latitude: null, longitude: null });
       } else {
-        const errorText = await res.text();
-        console.error('❌ Server response:', errorText);
-        toast.error(`❌ Server: ${errorText}`);
+        toast.error(`❌ Failed to send request. ${text}`);
       }
     } catch (err) {
-      console.error('❌ Fetch error:', err);
-      toast.error('❌ Server error. Please try again later.');
+      console.error('❌ Error submitting:', err);
+      toast.error('❌ Server error.');
     } finally {
       setLoading(false);
     }
