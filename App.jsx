@@ -12,8 +12,8 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
-
-const BACKEND_URL = 'https://car-end-rn4g.onrender.com';
+ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+console.log("Using backend:", BACKEND_URL); // should print full URL
 
 function App() {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
@@ -46,27 +46,20 @@ function App() {
 
     setLoading(true);
     try {
-      const payload = { ...formData, ...location };
-      console.log('🚀 Sending payload:', payload);
-
       const res = await fetch(`${BACKEND_URL}/api/emergency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...formData, ...location }),
       });
-
-      const text = await res.text();
-      console.log('📨 Server response:', text);
 
       if (res.ok) {
         toast.success('🚨 Request sent!');
         setFormData({ name: '', phone: '', issue: '', vehicle: '' });
         setLocation({ latitude: null, longitude: null });
       } else {
-        toast.error(`❌ Failed to send request. ${text}`);
+        toast.error('❌ Failed to send request.');
       }
     } catch (err) {
-      console.error('❌ Error submitting:', err);
       toast.error('❌ Server error.');
     } finally {
       setLoading(false);
