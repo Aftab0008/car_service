@@ -5,6 +5,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import toast, { Toaster } from 'react-hot-toast';
 
+
 // Fix Leaflet marker icon URLs
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -12,7 +13,7 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
- const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ;
 console.log("Using backend:", BACKEND_URL); // should print full URL
 
 function App() {
